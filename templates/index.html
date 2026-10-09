@@ -1,28 +1,58 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="utf-8"><title>Windows Security Dashboard</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Windows Security Dashboard</title>
 <style>
-body{font-family:Arial;margin:40px;background:#10131a;color:#eee}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
-.card{background:#1b202b;padding:22px;border-radius:12px}.value{font-size:30px;font-weight:bold;margin-top:8px}
-</style></head>
+body{font-family:Arial,sans-serif;margin:32px;background:#10131a;color:#eee}
+h1{margin-bottom:4px}.muted{color:#9da6b5}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-top:22px}
+.card{background:#1b202b;padding:20px;border-radius:12px}.label{color:#9da6b5}
+.value{font-size:28px;font-weight:bold;margin-top:8px}
+.error{padding:12px;background:#3a2020;border-radius:8px;margin-top:16px;display:none}
+</style>
+</head>
 <body>
-<h1>Windows Security Dashboard</h1><p id="os">Loading...</p>
+<h1>Windows Security Dashboard</h1>
+<p class="muted" id="system">Loading system information...</p>
+<div class="error" id="error"></div>
 <div class="grid">
-<div class="card">CPU<div class="value" id="cpu">-</div></div>
-<div class="card">Memory<div class="value" id="memory">-</div></div>
-<div class="card">Disk<div class="value" id="disk">-</div></div>
-<div class="card">Processes<div class="value" id="processes">-</div></div>
-<div class="card">Connections<div class="value" id="connections">-</div></div>
+<div class="card"><div class="label">CPU</div><div class="value" id="cpu">-</div></div>
+<div class="card"><div class="label">Memory</div><div class="value" id="memory">-</div></div>
+<div class="card"><div class="label">Disk</div><div class="value" id="disk">-</div></div>
+<div class="card"><div class="label">Processes</div><div class="value" id="processes">-</div></div>
+<div class="card"><div class="label">Connections</div><div class="value" id="connections">-</div></div>
+<div class="card"><div class="label">System uptime</div><div class="value" id="uptime">-</div></div>
 </div>
 <script>
-async function refresh(){
- const d=await (await fetch("/api/status")).json();
- for(const [id,key,suffix] of [["cpu","cpu_percent","%"],["memory","memory_percent","%"],["disk","disk_percent","%"],["processes","processes",""],["connections","network_connections",""]])
-   document.getElementById(id).textContent=d[key]+suffix;
- document.getElementById("os").textContent=d.os;
+function formatUptime(seconds){
+  const d=Math.floor(seconds/86400);
+  const h=Math.floor(seconds%86400/3600);
+  const m=Math.floor(seconds%3600/60);
+  return (d?d+"d ":"")+h+"h "+m+"m";
 }
-refresh(); setInterval(refresh,3000);
+async function refresh(){
+  const error=document.getElementById("error");
+  try{
+    const response=await fetch("/api/status",{cache:"no-store"});
+    if(!response.ok) throw new Error("HTTP "+response.status);
+    const d=await response.json();
+    document.getElementById("cpu").textContent=d.cpu_percent+"%";
+    document.getElementById("memory").textContent=d.memory_percent+"%";
+    document.getElementById("disk").textContent=d.disk_percent+"%";
+    document.getElementById("processes").textContent=d.processes;
+    document.getElementById("connections").textContent=d.network_connections;
+    document.getElementById("uptime").textContent=formatUptime(d.uptime_seconds);
+    document.getElementById("system").textContent=d.hostname+" | "+d.os+" | Python "+d.python;
+    error.style.display="none";
+  }catch(e){
+    error.textContent="Dashboard update failed: "+e.message;
+    error.style.display="block";
+  }
+}
+refresh();
+setInterval(refresh,3000);
 </script>
-</body></html>
+</body>
+</html>
