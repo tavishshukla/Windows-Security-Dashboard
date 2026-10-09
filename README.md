@@ -1,8 +1,6 @@
 # Windows Security Dashboard
 
-A local, read-only system security dashboard built with Python, Flask, and psutil.
-
-It displays basic system telemetry in a browser without changing Windows security settings.
+A local, read-only system telemetry dashboard built with Python, Flask, and psutil.
 
 ## Features
 
@@ -11,9 +9,13 @@ It displays basic system telemetry in a browser without changing Windows securit
 - Disk usage
 - Process count
 - Network connection count
-- Operating system information
-- Browser-based dashboard
-- Automatic dashboard refresh
+- Hostname and OS information
+- Python version
+- System uptime
+- Dashboard uptime
+- Auto-refreshing browser UI
+- JSON status API
+- Health endpoint
 - Read-only operation
 
 ## Requirements
@@ -23,131 +25,87 @@ It displays basic system telemetry in a browser without changing Windows securit
 - Git
 - A web browser
 
-## 1. Install Python
+## Setup
 
-Download Python:
+Install Python from https://www.python.org/downloads/ and Git from https://git-scm.com/downloads/.
 
-https://www.python.org/downloads/
-
-During Windows installation, enable:
-
-**Add Python to PATH**
-
-Check that it worked:
+Verify:
 
 ```bat
 python --version
-```
-
-## 2. Install Git
-
-Download Git:
-
-https://git-scm.com/downloads
-
-Check:
-
-```bat
 git --version
 ```
 
-## 3. Clone the repository
+Clone:
 
 ```bat
 git clone https://github.com/tavishshukla/Windows-Security-Dashboard.git
 cd Windows-Security-Dashboard
 ```
 
-## 4. Create a virtual environment
+Create the virtual environment:
 
 ```bat
 python -m venv .venv
 .venv\\Scripts\\activate
 ```
 
-## 5. Install dependencies
-
-Upgrade pip:
+Install:
 
 ```bat
 python -m pip install --upgrade pip
-```
-
-Install the project requirements:
-
-```bat
 python -m pip install -r requirements.txt
 ```
 
-You normally do not need to download pip separately because it is included with Python.
-
-## 6. Start the dashboard
-
-Run:
+## Run
 
 ```bat
 python main.py
 ```
 
-You should see Flask start on:
+Open:
 
 ```
 http://127.0.0.1:5000
 ```
 
-Open that address in your browser.
+The dashboard refreshes every 3 seconds.
 
-## 7. Use the dashboard
+## API endpoints
 
-The page displays current telemetry and refreshes automatically.
-
-The backend API is:
+### Status
 
 ```
 http://127.0.0.1:5000/api/status
 ```
 
-Opening that endpoint directly shows the current telemetry as JSON.
+Returns the current telemetry as JSON.
 
-## 8. Stop the dashboard
-
-Return to the terminal and press:
+### Health
 
 ```
-Ctrl+C
+http://127.0.0.1:5000/api/health
 ```
 
-## 9. Run tests
+Returns a simple health response confirming that the dashboard is running in read-only mode.
 
-If tests are present in the repository, run:
+## Stop
 
-```bat
-python -m pytest
-```
+Press `Ctrl+C` in the terminal.
 
-## What the dashboard measures
+## What it measures
 
-### CPU
+- CPU utilization
+- Memory utilization
+- System disk utilization
+- Visible process count
+- Visible network connection count
+- Hostname
+- OS/platform
+- Python version
+- System uptime
 
-Current CPU utilization reported by psutil.
-
-### Memory
-
-Current percentage of system memory in use.
-
-### Disk
-
-Current disk usage percentage for the system filesystem.
-
-### Processes
-
-Number of processes visible to psutil.
-
-### Network connections
-
-Number of network connections visible to psutil.
-
-Some operating systems may restrict access to certain connection information. The application handles that case without modifying the system.
+Some network connection information may be restricted by the operating system. The application handles that without changing system settings.
 
 ## Project structure
 
@@ -160,34 +118,6 @@ Windows-Security-Dashboard/
     └── index.html
 ```
 
-## Troubleshooting
-
-### Python is not recognized
-
-Reinstall Python and make sure **Add Python to PATH** is enabled. Then open a new Command Prompt.
-
-### Flask is missing
-
-Make sure the virtual environment is active and run:
-
-```bat
-python -m pip install -r requirements.txt
-```
-
-### Port 5000 is already in use
-
-Another local application may already be using port 5000. Stop that authorized local application before running this dashboard.
-
 ## Security model
 
-This dashboard is read-only. It does not:
-
-- Change the Windows firewall
-- Kill processes
-- Modify the registry
-- Change passwords
-- Change security policies
-- Disable antivirus
-- Modify network settings
-
-It is intended for local defensive monitoring and cybersecurity learning.
+This dashboard is read-only. It does not change the firewall, kill processes, modify the registry, change passwords, disable antivirus, or modify network settings.
