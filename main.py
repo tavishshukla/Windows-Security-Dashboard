@@ -43,6 +43,25 @@ def status():
     return jsonify(snapshot())
 
 
+@app.get("/api/processes")
+def processes():
+    rows = []
+    for proc in psutil.process_iter(["pid", "name", "username", "memory_percent"]):
+        try:
+            info = proc.info
+            rows.append({
+                "pid": info["pid"],
+                "name": info.get("name") or "unknown",
+                "username": info.get("username") or "unknown",
+                "memory_percent": round(info.get("memory_percent") or 0.0, 2),
+            })
+        except (psutil.AccessDenied, psutil.NoSuchProcess):
+            continue
+
+    rows.sort(key=lambda item: item["memory_percent"], reverse=True)
+    return jsonify(rows[:20])
+
+
 @app.get("/api/health")
 def health():
     return jsonify({"status": "ok", "read_only": True})
