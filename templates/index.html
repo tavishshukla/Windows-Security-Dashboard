@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"><title>Windows Security Dashboard</title>
+<style>
+body{font-family:Arial;margin:40px;background:#10131a;color:#eee}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
+.card{background:#1b202b;padding:22px;border-radius:12px}.value{font-size:30px;font-weight:bold;margin-top:8px}
+</style></head>
+<body>
+<h1>Windows Security Dashboard</h1><p id="os">Loading...</p>
+<div class="grid">
+<div class="card">CPU<div class="value" id="cpu">-</div></div>
+<div class="card">Memory<div class="value" id="memory">-</div></div>
+<div class="card">Disk<div class="value" id="disk">-</div></div>
+<div class="card">Processes<div class="value" id="processes">-</div></div>
+<div class="card">Connections<div class="value" id="connections">-</div></div>
+</div>
+<script>
+async function refresh(){
+ const d=await (await fetch("/api/status")).json();
+ for(const [id,key,suffix] of [["cpu","cpu_percent","%"],["memory","memory_percent","%"],["disk","disk_percent","%"],["processes","processes",""],["connections","network_connections",""]])
+   document.getElementById(id).textContent=d[key]+suffix;
+ document.getElementById("os").textContent=d.os;
+}
+refresh(); setInterval(refresh,3000);
+</script>
+</body></html>
