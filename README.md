@@ -131,3 +131,7 @@ The dashboard exposes two local read-only endpoints: `/api/status` for current t
 The local read-only `/api/processes` endpoint returns up to 20 visible processes, ordered by memory usage. Access-denied processes are skipped rather than changing system permissions.
 
 `http://127.0.0.1:5000/api/processes`
+
+## Process panel
+
+The browser dashboard now shows the top visible processes by memory usage. The panel uses the read-only `/api/processes` endpoint and skips processes that the operating system does not allow the app to inspect.
