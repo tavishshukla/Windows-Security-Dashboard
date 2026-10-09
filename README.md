@@ -121,3 +121,7 @@ Windows-Security-Dashboard/
 ## Security model
 
 This dashboard is read-only. It does not change the firewall, kill processes, modify the registry, change passwords, disable antivirus, or modify network settings.
+
+## API endpoints
+
+The dashboard exposes two local read-only endpoints: `/api/status` for current telemetry and `/api/health` for basic health/read-only status. Both are available only through the local Flask server.
