@@ -11,6 +11,7 @@ h1{margin-bottom:4px}.muted{color:#9da6b5}
 .card{background:#1b202b;padding:20px;border-radius:12px}.label{color:#9da6b5}
 .value{font-size:28px;font-weight:bold;margin-top:8px}
 .error{padding:12px;background:#3a2020;border-radius:8px;margin-top:16px;display:none}
+#processList{margin-top:22px}.process{background:#1b202b;padding:10px 14px;border-radius:8px;margin:6px 0}
 </style>
 </head>
 <body>
@@ -25,34 +26,30 @@ h1{margin-bottom:4px}.muted{color:#9da6b5}
 <div class="card"><div class="label">Connections</div><div class="value" id="connections">-</div></div>
 <div class="card"><div class="label">System uptime</div><div class="value" id="uptime">-</div></div>
 </div>
+<div id="processList"><h2>Top processes by memory</h2><div id="processesData">Loading...</div></div>
 <script>
-function formatUptime(seconds){
-  const d=Math.floor(seconds/86400);
-  const h=Math.floor(seconds%86400/3600);
-  const m=Math.floor(seconds%3600/60);
-  return (d?d+"d ":"")+h+"h "+m+"m";
-}
+function formatUptime(seconds){const d=Math.floor(seconds/86400);const h=Math.floor(seconds%86400/3600);const m=Math.floor(seconds%3600/60);return (d?d+"d ":"")+h+"h "+m+"m";}
 async function refresh(){
-  const error=document.getElementById("error");
-  try{
-    const response=await fetch("/api/status",{cache:"no-store"});
-    if(!response.ok) throw new Error("HTTP "+response.status);
-    const d=await response.json();
-    document.getElementById("cpu").textContent=d.cpu_percent+"%";
-    document.getElementById("memory").textContent=d.memory_percent+"%";
-    document.getElementById("disk").textContent=d.disk_percent+"%";
-    document.getElementById("processes").textContent=d.processes;
-    document.getElementById("connections").textContent=d.network_connections;
-    document.getElementById("uptime").textContent=formatUptime(d.uptime_seconds);
-    document.getElementById("system").textContent=d.hostname+" | "+d.os+" | Python "+d.python;
-    error.style.display="none";
-  }catch(e){
-    error.textContent="Dashboard update failed: "+e.message;
-    error.style.display="block";
-  }
+ const error=document.getElementById("error");
+ try{
+  const response=await fetch("/api/status",{cache:"no-store"});
+  if(!response.ok) throw new Error("HTTP "+response.status);
+  const d=await response.json();
+  document.getElementById("cpu").textContent=d.cpu_percent+"%";
+  document.getElementById("memory").textContent=d.memory_percent+"%";
+  document.getElementById("disk").textContent=d.disk_percent+"%";
+  document.getElementById("processes").textContent=d.processes;
+  document.getElementById("connections").textContent=d.network_connections;
+  document.getElementById("uptime").textContent=formatUptime(d.uptime_seconds);
+  document.getElementById("system").textContent=d.hostname+" | "+d.os+" | Python "+d.python;
+  error.style.display="none";
+  const p=await fetch("/api/processes",{cache:"no-store"});
+  if(!p.ok) throw new Error("Process API HTTP "+p.status);
+  const rows=await p.json();
+  document.getElementById("processesData").innerHTML=rows.map(x=>'<div class="process"><b>'+x.name+'</b> (PID '+x.pid+') — '+x.memory_percent+'%</div>').join("") || "No process data";
+ }catch(e){error.textContent="Dashboard update failed: "+e.message;error.style.display="block";}
 }
-refresh();
-setInterval(refresh,3000);
+refresh();setInterval(refresh,3000);
 </script>
 </body>
 </html>
