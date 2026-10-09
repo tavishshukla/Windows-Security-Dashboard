@@ -125,3 +125,9 @@ This dashboard is read-only. It does not change the firewall, kill processes, mo
 ## API endpoints
 
 The dashboard exposes two local read-only endpoints: `/api/status` for current telemetry and `/api/health` for basic health/read-only status. Both are available only through the local Flask server.
+
+## Process telemetry
+
+The local read-only `/api/processes` endpoint returns up to 20 visible processes, ordered by memory usage. Access-denied processes are skipped rather than changing system permissions.
+
+`http://127.0.0.1:5000/api/processes`
